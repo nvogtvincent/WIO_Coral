@@ -1,0 +1,106 @@
+{
+	"AM": [
+								{
+									"species_name": "Acropora millepora",
+									"a": 0.18,
+									"b": 0.050,
+									"tc": 3.239,
+									"λ": 0.043,
+									"ν": 0.57,
+									"σ": 0,
+									"μs": 1.0,
+									"ref": "CB2010"
+								}
+	      ],
+	"AV": [
+                {
+                  "species_name": "Acropora valida",
+                  "a": 0.22,
+                  "b": 0.031,
+                  "tc": 0,
+                  "λ": 0.019,
+                  "ν": 0.46,
+                  "σ": 0,
+									"μs": 1.0,
+                  "ref": "CB2010"
+                }
+				],
+	"AG": [
+                {
+                  "species_name": "Acropora gemmifera",
+                  "a": 0.39,
+                  "b": 0.145,
+                  "tc": 3.471,
+                  "λ": 0.067,
+                  "ν": 1,
+                  "σ": 0,
+									"μs": 1.0,
+                  "ref": "CB2010"
+                }
+				],
+	"GR": [
+                {
+                  "species_name": "Goniastrea retiformis",
+                  "a": 0.58,
+                  "b": 0.096,
+                  "tc": 0,
+                  "λ": 0.087,
+                  "ν": 1,
+                  "σ": 0,
+									"μs": 1.0,
+                  "ref": "CB2010"
+                }
+				],
+	"PD": [
+                {
+                  "species_name": "Platygyra daedalea",
+                  "a": 0.39,
+                  "b": 0.099,
+                  "tc": 2.937,
+                  "λ": 0.060,
+                  "ν": 0.72,
+                  "σ": 0,
+									"μs": 1.0,
+                  "ref": "CB2010"
+                }
+				],
+	"PD-fast": [
+                {
+                  "species_name": "Platygyra daedalea (fast settling)",
+                  "a": 0.39,
+                  "b": 0.099,
+                  "tc": 2.937,
+                  "λ": 0.060,
+                  "ν": 0.72,
+                  "σ": 0,
+									"μs": 2.0,
+                  "ref": "CB2010 + NVV"
+                }
+				],
+	"PD-slow": [
+                {
+                  "species_name": "Platygyra daedalea (slow settling)",
+                  "a": 0.39,
+                  "b": 0.099,
+                  "tc": 2.937,
+                  "λ": 0.060,
+                  "ν": 0.72,
+                  "σ": 0,
+									"μs": 0.5,
+                  "ref": "CB2010 + NVV"
+                }
+				],
+  "physical": [
+                {
+                  "species_name": "Physical (no mortality, rapid competency acquisition)",
+                  "a": 10.00,
+                  "b": 0.0,
+                  "tc": 0.0,
+                  "λ": 0.0,
+                  "ν": 1.0,
+                  "σ": 0.0,
+                  "μs": 1.0,
+                  "ref": "NVV"
+                }
+  ]
+}

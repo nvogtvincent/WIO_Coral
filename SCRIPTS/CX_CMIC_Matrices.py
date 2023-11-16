@@ -502,7 +502,7 @@ gen_dist_median.name = 'gen_dist_median'
 gen_dist_variance.name = 'gen_dist_mod_cv'
 
 output_matrix = xr.merge([mean_matrix, cv_matrix, gen_dist_median, gen_dist_variance]).drop('quantile')
-output_matrix.to_netcdf(dirs['matrices'] + bio_code + '_processed_connectivity_matrices.nc',
+output_matrix.to_netcdf(dirs['matrix'] + bio_code + '_processed_connectivity_matrices.nc',
                         encoding={var: {'zlib': True, 'complevel': 5} for var in output_matrix.variables})
 
 

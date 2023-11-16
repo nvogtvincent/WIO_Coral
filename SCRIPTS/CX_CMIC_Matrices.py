@@ -28,7 +28,7 @@ import cmasher as cmr
 bio_code = sys.argv[1]
 
 # Number of generations
-n_gen_max = 500   # Number of generations to simulate
+n_gen_max = sys.argv[2]   # Number of generations to simulate
 
 # Number of iterations to test
 n_its = 1000
@@ -494,3 +494,18 @@ cbar1.ax.tick_params(axis='x', labelsize=20)
 
 plt.savefig(dirs['fig'] + bio_code +
             '_cx_matrix_cv_labelled.pdf', bbox_inches='tight', dpi=300)
+
+# Export to netcdf
+mean_matrix.name = 'single_step_explicit_mean'
+cv_matrix.name = 'single_step_explicit_cv'
+gen_dist_median.name = 'gen_dist_median'
+gen_dist_variance.name = 'gen_dist_mod_cv'
+
+output_matrix = xr.merge([mean_matrix, cv_matrix, gen_dist_median, gen_dist_variance]).drop('quantile')
+output_matrix.to_netcdf(dirs['matrices'] + bio_code + '_processed_connectivity_matrices.nc',
+                        encoding={var: {'zlib': True, 'complevel': 5} for var in output_matrix.variables})
+
+
+
+
+

@@ -1,0 +1,877 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <title>Coral connectivity</title>
+  <meta name="description" content="Ocean floor">
+  <meta name="author" content="Julia Janicki">
+  <link rel="shortcut icon" href="#">
+  <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;600;700&family=Work+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet">
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      color: #0C1B34;
+      font-family: 'Work Sans', sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: #0C1B34;
+    }
+
+    h1 {
+      font-size: 17px;
+      line-height: 25px;
+    }
+
+    h2 {
+      font-size: 15px;
+      line-height: 20px;
+      margin-bottom: 10px;
+    }
+
+    a {
+      text-decoration: none;
+      color: #2dc4b2;
+    }
+
+    .subtitle {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      font-size: 14px;
+    }
+
+    #console {
+      position: absolute;
+      width: 300px;
+      margin: 10px;
+      padding: 10px 20px 10px 30px;
+      background-color: #F0F0F1;
+      border-radius: 5px;
+      z-index: 15;
+      transition: 0.3s ease-in-out;
+      box-shadow: 0 1px 1px 0 rgba(66, 66, 66, 0.08), 0 1px 3px 1px rgba(66, 66, 66, 0.16);
+    }
+
+    .active {
+      transform: translate3d(-280px, 0, 0);
+      transition: 0.3s ease-in-out;
+    }
+
+    .itemWrapper {
+      margin-top: -20px;
+    }
+
+    #toggleConsole {
+      position: absolute;
+      right: 5px;
+      top: 0px;
+    }
+
+    #toggleConsole img {
+      width: 16px;
+      opacity: 0.7;
+    }
+
+    #toggleConsole img:hover {
+      opacity: 0.5;
+      transition: all .5s ease;
+      cursor: pointer;
+    }
+
+    .toggle {
+      position: relative;
+      height: 14px;
+      width: 35px;
+      border-radius: 15px;
+      background: #cfcfcf;
+      margin: 8px 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 100%;
+      height: 200%;
+      position: absolute;
+      top: -7px;
+      left: 0;
+      z-index: 2;
+      margin: 0
+    }
+
+    .toggle input:nth-child(2):checked {
+      z-index: 1;
+    }
+
+    .toggle__pointer {
+      position: absolute;
+      top: -3.5px;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 15px;
+      -webkit-transition: left .15s ease-out;
+      transition: left .15s ease-out;
+    }
+
+    .toggle input:nth-child(2):checked+.toggle__pointer {
+      left: 18px;
+      background-color: #777777;
+    }
+
+    .toggleSeamount {
+      background-color: #189B68;
+    }
+
+    .flip {
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+      opacity: 1;
+    }
+
+    #acknowledgements {
+      position: absolute;
+      width: 600px;
+      margin: 15px;
+      padding: 5px 5px 5px 8px;
+      background-color: #F0F0F1;
+      border-radius: 5px;
+      z-index: 15;
+      transition: 0.3s ease-in-out;
+      opacity: 0.5;
+      bottom: 0;
+      right: 0;
+      font-size: 75%;
+    }
+
+    #console h1,
+    #console h2 {
+      text-align: left;
+    }
+
+    .verticalLine {
+      margin-right: 5px;
+      border-right: 0.3px solid #ECE8E1;
+    }
+
+    #title {
+      font-family: 'Eczar', serif;
+      color: #0c1b34;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .mapboxgl-popup {
+      max-width: 300px !important;
+      font-family: 'Work Sans', sans-serif;
+      text-align: left;
+      z-index: 20;
+    }
+
+    .mapboxgl-popup-content {
+      font-family: 'Work Sans', sans-serif;
+      padding: 0;
+    }
+
+    .mapboxgl-popup-content-wrapper {
+      padding: 1%;
+    }
+
+    .mapboxgl-popup-content h3 {
+      text-align: left;
+      font-size: 16px;
+      margin: 0;
+      display: block;
+      padding: 15px;
+      font-weight: 700;
+      margin-top: -5px;
+    }
+
+    .mapboxgl-popup.nodes h3 {
+      background: #7BA69A !important;
+      color: #fff;
+    }
+
+    .mapboxgl-popup.edges h3 {
+      background: #FCB1A7 !important;
+      color: #fff;
+    }
+
+    .mapboxgl-popup-content h4 {
+      margin: 0;
+      display: block;
+      font-size: 14px;
+      padding: 10px;
+      font-weight: 400;
+    }
+
+    .mapboxgl-container {
+      cursor: pointer;
+    }
+
+    .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
+      margin-top: 3px;
+    }
+
+    .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
+      border-bottom-color: rgb(61, 59, 59);
+    }
+
+    .mapboxgl-popup-close-button {
+      transform: scale(2);
+      color: white;
+      padding: 0px;
+      margin-right: 10px;
+    }
+
+    .mapboxgl-popup-close-button:hover,
+    .mapboxgl-popup-close-button:active,
+    .mapboxgl-popup-close-button:target {
+      background: none !important;
+      border: none !important;
+      outline: none !important;
+      color: #cfcfcf;
+      transition: all 0.5s ease;
+    }
+
+    .instruction {
+      margin-bottom: 25px;
+    }
+
+    .instruction p {
+      color: #4F8C76;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    .button {
+      margin-bottom: 10px;
+      margin-top: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.5;
+      text-transform: uppercase;
+      background-color: none;
+      max-width: 200px;
+      text-align: center;
+      border: 2px solid #7BA69A;
+      color: #7BA69A;
+      -webkit-transition: all .5s ease;
+      -moz-transition: all .5s ease;
+      -ms-transition: all .5s ease;
+      transition: all .5s ease;
+      padding: 10px;
+    }
+
+
+    .button:hover {
+      cursor: pointer;
+      -webkit-transition: all .5s ease;
+      -moz-transition: all .5s ease;
+      -ms-transition: all .5s ease;
+      transition: all .5s ease;
+      background-color: #7BA69A;
+      color: white;
+    }
+
+    .item {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    #loading {
+      top: 0;
+      left: 0;
+      position: fixed;
+      display: block;
+      opacity: .7;
+      background-color: #fff;
+      z-index: 99;
+    }
+
+    #loading-image {
+      position: relative;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: calc(50vh - 80px);
+      z-index: 100;
+    }
+
+    #loading {
+      width: 100%;
+      text-align: center;
+      height: 100%;
+    }
+
+    #logo {
+      position: absolute;
+      bottom: 22px;
+      right: 0px;
+      z-index: 5;
+    }
+
+    #logo img {
+      width: 120px;
+    }
+
+    #reset {
+      width: 30px;
+      height: 30px;
+      margin-top: -5px;
+      margin-bottom: 5px;
+      fill: #767676;
+    }
+
+    #reset:hover {
+      fill: #cfcfcf;
+      transition: all 0.5s ease;
+      cursor: pointer;
+    }
+
+    #minCircle {
+      width: 10px;
+      height: 10px;
+    }
+
+    #maxCircle {
+      width: 40px;
+      height: 40px;
+    }
+
+    #minCircleVal,
+    #maxCircleVal {
+      padding-top: 10px;
+    }
+
+    #circleSizes {
+      margin-bottom: 20px;
+    }
+
+    @media screen and (max-width: 800px) {
+
+      #console {
+        width: 250px;
+      }
+
+      .active {
+        transform: translate3d(-230px, 0, 0);
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 12px;
+      }
+
+      .mapboxgl-popup {
+        max-width: 290px !important;
+      }
+    }
+
+    @media screen and (max-width: 550px) {
+      body {
+        font-size: 12px !important;
+      }
+
+      #title {
+        font-size: 14px;
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      .active {
+        transform: translate3d(-230px, 0, 0);
+      }
+
+      h1 {
+        font-size: 14px;
+      }
+
+      h2 {
+        font-size: 12px;
+      }
+
+      .instruction p {
+        font-size: 10px;
+      }
+
+      .mapboxgl-popup {
+        transform: none !important;
+        top: 230px;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-center .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-left .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-right .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+      .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip {
+        display: none !important;
+      }
+
+      #logo {
+        position: absolute;
+        top: 15px;
+        right: 0px;
+      }
+
+      #logo img {
+        width: 100px;
+      }
+
+      .mapboxgl-popup-content h4 {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id='map'></div>
+  <div id='console'>
+    <div class="verticalLine">
+      <span id="toggleConsole">
+        <img src="./coral_data/img/toggle.png" />
+      </span>
+      <h1 id='title'>Coral connectivity in the southwest Indian Ocean</h1>
+      <div class="instruction itemWrapper" id="instruction">
+        <p class="item">This dispersal network is based on SECoW simulations for <i>Platygyra daedalea</i>, a type of brain coral. <br><br>
+          Click on a reef to see more information, or hover over a reef to see outbound larval connections. Line thicknesses are proportional to the strength of individual outbound connections, and circle size is proportional to out-strength. <br><br>
+          <span><b>Out-strength:</b></span> the likelihood of virtual larvae settling anywhere. <br><br>
+          <span><b>In-strength:</b></span> the ratio between incoming and outgoing virtual larvae. <br><br>
+          <span><b>Out-entropy:</b></span> The diversity of larval destinations from a site. <br><br>
+          <span><b>In-entropy:</b></span> The diversity of larval sources for a site. <br><br>
+          <span><b>Out-consistency:</b></span> The proportion of spawning events accounting for half of outbound settling larvae. <br><br>
+          <span><b>In-consistency:</b></span> The proportion of spawning events accounting for half of inbound settling larvae. <br><br>
+          Reefs with high out-strength, out-entropy, and out-consistency may play an important role in maintaining regional reef resilience. Reefs with high in-strength, in-entropy, and in-consistency may have greater recovery potential.
+        </p>
+      </div>  
+    </div>
+  </div>
+  <div id='acknowledgements'>
+    <p class="item"> This app is based on coral larval dispersal simulations run by researchers at the University of Oxford, led by Noam Vogt-Vincent, April Burt, and Helen Johnson (see <a href="https://doi.org/10.5194/egusphere-2023-778">here</a> for the preprint), and was funded by the Natural Environment Research Council (NERC) and the Seychelles Conservation and Climate Adaptation Trust (SeyCCAT). This interactive web app was conceptualised by Noam Vogt-Vincent and Otis Brunner, and developed by <a href="https://juliahanjanicki.com/">Julia Janicki</a>. 
+    </p>
+  </div>
+  </div>
+  <!-- end line -->
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.js"></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <script src="./coral_data/data/PD_network.js"></script>
+  <script>
+
+    var windowWidth = $(window).width();
+    var windowHeight = $(window).height();
+    var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    var mobile = false;
+    var iphone = false;
+    var safari = false;
+
+    let popup;
+    let map;
+
+
+    const nodes = data.nodes;
+    const edges = data.links;
+
+
+    const extent = d3.extent(nodes.map(d => +d.out_strength))
+    const sizeScale = d3.scaleLinear().domain(extent).range([5, 15]);
+
+    $("#minCircleVal").html(extent[0].toFixed(5));
+    $("#maxCircleVal").html(extent[1].toFixed(2));
+
+
+    $("#minCircle").css("width", sizeScale(extent[0]));
+    $("#minCircle").css("height", sizeScale(extent[0]));
+    $("#maxCircle").css("width", sizeScale(extent[1]));
+    $("#maxCircle").css("height", sizeScale(extent[1]));
+
+
+
+    $(window).resize(function () {
+      if (windowWidth != $(window).width() || windowHeight != $(window).height()) {
+        location.reload();
+        return;
+      }
+    });
+
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || viewportWidth < 600) {
+      mobile = true;
+    }
+
+    if (/iPhone/i.test(navigator.userAgent)) {
+      iphone = true;
+    }
+
+    //if Safari
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('safari') != -1) {
+      if (ua.indexOf('chrome') > -1) { // Chrome
+      } else {// Safari
+        safari = true;
+      }
+    }
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoibnZvZ3R2aW5jZW50IiwiYSI6ImNsbm42NWp4MTAzZ2gyamxqaGx1ZXo5cWkifQ.sKbWZTq2b8AjeLMPOyIunQ';
+
+    let nodesData = {
+      'type': 'FeatureCollection',
+      'features': [
+      ]
+    };
+
+    let edgesData = {
+      'type': 'FeatureCollection',
+      'features': [
+      ]
+    };
+
+    if (mobile) {
+      map = new mapboxgl.Map({
+        container: 'map', // container element id
+        style: 'mapbox://styles/jhjanicki/cl3xt7dgs000415mylif9a5g7',
+        center: [50.638206, -10.747851], // initial map center in [lon, lat]
+        zoom: 2,
+        minZoom: 1
+      });
+
+    } else {
+      map = new mapboxgl.Map({
+        container: 'map', // container element id
+        style: 'mapbox://styles/jhjanicki/cl3xt7dgs000415mylif9a5g7',
+        center: [50.638206, -10.747851], // initial map center in [lon, lat]
+        zoom: 4,
+        minZoom: 1
+      });
+    }
+
+    let consoleHeight = $("#console").height() / 2;
+    $("#toggleConsole").css("top", consoleHeight);
+
+    map.on('load', function () {
+      init();
+      $("#toggleConsole").click(function () {
+        $("#console").toggleClass("active");
+        $("#toggleConsole img").toggleClass("flip");
+      });
+    });
+
+    if (!mobile) {
+      map.addControl(new mapboxgl.NavigationControl());
+    }
+
+    let popupBool = false;
+
+
+    function init() {
+      $('#loading').hide();
+
+      createNodeData(nodes);
+      createEdgeData(edges);
+
+
+      map.addLayer({
+        id: 'edgesLayer',
+        type: 'line',
+        source: {
+          type: 'geojson',
+          lineMetrics: true,
+          data: edgesData
+        },
+        paint: {
+          'line-color': [
+            'interpolate',
+            ["linear"],
+            ['get', 'weight'],
+            0,
+            "#fee5d9",
+            0.1,
+            "#fcbba1",
+            0.5,
+            "#fc9272",
+            1,
+            "#fb6a4a",
+            10,
+            "#ef3b2c",
+            100,
+            "#cb181d",
+            1000,
+            "#99000d"
+          ], //max: 12686824
+          'line-width': [
+            'interpolate',
+            ["linear"],
+            ['get', 'weight'],
+            0,
+            0.1,
+            0.1,
+            0.5,
+            0.5,
+            1,
+            1,
+            3,
+            10,
+            5,
+            100,
+            9,
+            1000,
+            14
+          ],
+          'line-opacity': 1
+        },
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': 'none'
+        }
+      });
+
+      map.addLayer({
+        id: 'nodesLayer',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: nodesData
+        },
+        paint: {
+          "circle-color": '#7BA69A',
+          'circle-radius': [
+            'interpolate',
+            ["linear"],
+            ['get', 'out_strength'],
+            0,
+            3,
+            0.13,
+            15
+          ], //max: 0.13905576677925377
+          'circle-stroke-color': 'white',
+          'circle-stroke-width': 1,
+          'circle-opacity': 0.8
+        }
+      });
+
+    }
+
+
+    function createNodeData(data) {
+
+      nodesData['features'] = [];
+
+      data.forEach(function (row) {
+        const feature =
+        {
+          'type': 'Feature',
+          'properties': {
+            'longitude': +row.longitude,
+            'latitude': +row.latitude,
+            'name': row.L2_group_name,
+            'country': row.country_name,
+            'out_strength': +row.out_strength,
+            'in_strength': +row.in_strength,
+            'out_entropy': +row.out_entropy,
+            'in_entropy': +row.in_entropy,
+            'out_consistency': +row.out_consistency,
+            'in_consistency': +row.in_consistency,
+            'id': +row.id
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [+row.longitude, +row.latitude],
+          }
+        };
+        nodesData['features'].push(feature);
+      });
+    }
+
+    function createEdgeData(data) {
+
+      edgesData['features'] = [];
+
+      data.forEach(function (row) {
+        const feature =
+        {
+          'type': 'Feature',
+          'properties': {
+            'source': +row.source,
+            'target': +row.target,
+            'weight': +row.weight
+          },
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': [findPoint(row.source), findPoint(row.target)],
+          }
+        };
+
+
+        // feature.geometry.coordinates = turf.bezierSpline(turf.lineString(feature.geometry.coordinates)).geometry.coordinates;
+
+        // const start = findPoint(row.Source);
+        // const end = findPoint(row.Target);
+        // const distance = turf.distance(start, end, { units: 'miles' });
+        // const midpoint = turf.midpoint(start, end);
+        // const destination = turf.destination(midpoint, distance / 4, 80, { units: 'miles' });
+        // // curvedLine gets rendered to the page
+        // const curvedLine = turf.bezierSpline(
+        //   turf.lineString([start, destination.geometry.coordinates, end]),
+        // );
+
+        // console.log(curvedLine)
+        // feature.geometry.coordinates = curvedLine.geometry.coordinates;
+
+        edgesData['features'].push(feature);
+      });
+
+    }
+
+    // look up source / sink coordinates from the node list
+    function findPoint(id) {
+      const node = nodes.find(d => d.id === id);
+
+      return [node.longitude, node.latitude]
+    }
+
+
+    map.on('mouseover', 'nodesLayer', (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+      const id = e.features[0].properties.id;
+
+      map.setFilter('edgesLayer', ['==', 'source', id]);
+      map.setLayoutProperty(
+        'edgesLayer',
+        'visibility',
+        'visible'
+      );
+
+    })
+
+
+    map.on('mouseleave', 'nodesLayer', () => {
+      map.getCanvas().style.cursor = '';
+      map.setLayoutProperty(
+        'edgesLayer',
+        'visibility',
+        'none'
+      );
+      map.setFilter('edgesLayer', null);
+
+    });
+
+
+
+
+
+    map.on('click', 'nodesLayer', function (e) {
+
+      popupBool = true;
+
+      map.getCanvas().style.cursor = 'pointer';
+
+      var latitude = e.features[0].properties.latitude;
+      var longitude = e.features[0].properties.longitude;
+      var name = e.features[0].properties.name;
+      var country = e.features[0].properties.country;
+      var out_strength = e.features[0].properties.out_strength;
+      var in_strength = e.features[0].properties.in_strength;
+      var out_entropy = e.features[0].properties.out_entropy;
+      var in_entropy = e.features[0].properties.in_entropy;
+      var out_consistency = e.features[0].properties.out_consistency;
+      var in_consistency = e.features[0].properties.in_consistency;
+
+      popup = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: true,
+        className: 'nodes'
+      })
+        .setHTML('<h3 class="nodes"><b>' + name + ' (' + country + ')' + '</b></h3>'
+          + '<h4><b>Out-strength</b>: ' + (100*out_strength).toFixed(1) + '% <br>'
+          + '<b>In-strength</b>: ' + (100*in_strength).toFixed(1) + '% <br><br>'
+          + '<b>Out-entropy</b>: ' + out_entropy.toFixed(2) + ' bits<br>'
+          + '<b>In-entropy</b>: ' + in_entropy.toFixed(2) + ' bits<br><br>'
+          + '<b>Out-consistency</b>: ' + (100*out_consistency).toFixed(1) + '% <br>'
+          + '<b>In-consistency</b>: ' + (100*in_consistency).toFixed(1) + '% </h4>')
+        .setLngLat([longitude, latitude])
+        .addTo(map);
+
+      $(".button").on('click', function () {
+        if (popupBool) {
+          popup.remove();
+          popupBool = false;
+        }
+
+      })
+      $(".mapboxgl-popup-tip").css("border-bottom-color", color);
+      $(".mapboxgl-popup-tip").css("border-bottom-color", color);
+
+    });
+
+
+
+
+    // map.on('click', 'edgesLayer', function (e) {
+
+    //   popupBool = true;
+
+    //   map.getCanvas().style.cursor = 'pointer';
+
+    //   var source = e.features[0].properties.source;
+    //   var target = e.features[0].properties.target;
+    //   var weight = e.features[0].properties.weight;
+
+    //   // removedNodes.push(name);
+
+    //   var color = "#AECFBA";
+
+    //   popup = new mapboxgl.Popup({
+    //     closeButton: true,
+    //     closeOnClick: true,
+    //     className: 'edges'
+    //   })
+    //     .setHTML('<h3 class="edges"><b>' + source + "-" + target + '</b></h3>'
+    //       + '<h4><b>Weight</b>: ' + weight + '<br></h4>')
+    //     .setLngLat([e.lngLat.lng, e.lngLat.lat])
+    //     .addTo(map);
+
+
+    //   $(".mapboxgl-popup-tip").css("border-bottom-color", color);
+    //   $(".mapboxgl-popup-tip").css("border-bottom-color", color);
+
+    // });
+
+  </script>
+</body>
+<div id="loading">
+  <img id="loading-image" src="./coral_data/img/load.gif" alt="Loading..." />
+</div>
+
+</html>

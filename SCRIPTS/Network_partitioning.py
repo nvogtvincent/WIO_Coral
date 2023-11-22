@@ -35,7 +35,7 @@ permitted_months = [1,2,3,10,11,12]
 mean_length = 10   # Number of days to compute networks across
 network_its = 1000 # Number of networks to initialise
 plot_meow = True
-n_cluster = 8
+n_cluster = 5
 
 # DIRECTORIES
 dirs = {}
@@ -476,7 +476,7 @@ for node in np.arange(len(group_list))+1:
                   edgecolors='k', linewidth=0.2,
                   s=20, zorder=10)
 
-ax[0].text(77, -23.15, '$n=$' + str(n_cluster), fontsize=16, va='bottom', ha='right')
+ax[0].text(77, -23.15, '$k=$' + str(n_cluster), fontsize=16, va='bottom', ha='right')
 
 plt.savefig(dirs['fig'] + bio_code + '_meta_clusters_' + seas_str + '_kmeans' + str(n_cluster) + '.pdf', bbox_inches='tight', dpi=1200)
 plt.close()

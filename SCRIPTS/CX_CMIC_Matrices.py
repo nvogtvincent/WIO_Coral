@@ -33,8 +33,11 @@ n_gen_max = int(sys.argv[2])   # Number of generations to simulate
 # Number of iterations to test
 n_its = 1000
 
-# Retention modifier
-retention_mod = 1
+# Retention modifier (divide non-retentive connections by this)
+try:
+    retention_mod = int(sys.argv[3])
+except:
+    retention_mod = 1
 
 # Percentiles to use
 pct_bnd = [0.025, 0.975]

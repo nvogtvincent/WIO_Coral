@@ -28,10 +28,13 @@ import cmasher as cmr
 bio_code = sys.argv[1]
 
 # Number of generations
-n_gen_max = sys.argv[2]   # Number of generations to simulate
+n_gen_max = int(sys.argv[2])   # Number of generations to simulate
 
 # Number of iterations to test
 n_its = 1000
+
+# Retention modifier
+retention_mod = 10
 
 # Percentiles to use
 pct_bnd = [0.025, 0.975]
@@ -44,7 +47,7 @@ day_list = np.concatenate(
 # DIRECTORIES
 dirs = {}
 dirs['root'] = os.getcwd() + '/../'
-dirs['matrix'] = dirs['root'] + 'MATRICES/'
+dirs['matrix'] = dirs['root'] + 'MATRICES/' + str(bio_code) + '/'
 dirs['grid'] = dirs['root'] + 'GRID_DATA/'
 dirs['fig'] = dirs['root'] + 'FIGURES/Matrices/' + str(bio_code) + '/'
 
@@ -72,6 +75,7 @@ with xr.open_dataset(fh['matrix']) as file:
     I = xr.ones_like(matrix.matrix.ns[:, :, 0].drop('time'))
     I = I.where(I.source_group == I.sink_group).fillna(0.)
     B = matrix.matrix.ns/matrix.matrix.ns.sum(dim='source_group')
+    B = xr.where(B.source_group != B.sink_group, B/retention_mod, B)
     B_mean = matrix.matrix.ns[:, :, matrix.matrix.time.dt.dayofyear.isin(
         day_list)].mean(dim='time')
     B_mean = B_mean/B_mean.sum(dim='source_group')
@@ -143,6 +147,9 @@ for it in tqdm(range(n_its), total=n_its):
 gen_dist_median = gen_dist_all.quantile(0.5, dim='iteration')
 gen_dist_variance = (gen_dist_all.quantile(0.975, dim='iteration') -
                      gen_dist_all.quantile(0.025, dim='iteration'))/gen_dist_median
+
+print('95th percentile generational distance: ' + str(float(gen_dist_median.quantile(0.95))))
+print('99th percentile generational distance: ' + str(float(gen_dist_median.quantile(0.99))))
 
 ###############################################################################
 # PLOT DATA ###################################################################

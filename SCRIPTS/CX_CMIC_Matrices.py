@@ -34,7 +34,7 @@ n_gen_max = int(sys.argv[2])   # Number of generations to simulate
 n_its = 1000
 
 # Retention modifier
-retention_mod = 10
+retention_mod = 1
 
 # Percentiles to use
 pct_bnd = [0.025, 0.975]
